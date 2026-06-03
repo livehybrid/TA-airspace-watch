@@ -35,7 +35,10 @@
                                 {
                                     "type": "number",
                                     "errorMsg": "Port must be between 1 and 65535.",
-                                    "range": [1, 65535]
+                                    "range": [
+                                        1,
+                                        65535
+                                    ]
                                 }
                             ]
                         },
@@ -66,7 +69,10 @@
                                 {
                                     "type": "number",
                                     "errorMsg": "Timeout must be between 1 and 60 seconds.",
-                                    "range": [1, 60]
+                                    "range": [
+                                        1,
+                                        60
+                                    ]
                                 }
                             ]
                         }
@@ -87,7 +93,10 @@
                                 {
                                     "type": "number",
                                     "errorMsg": "Latitude must be between -90 and 90.",
-                                    "range": [-90, 90]
+                                    "range": [
+                                        -90,
+                                        90
+                                    ]
                                 }
                             ]
                         },
@@ -102,7 +111,10 @@
                                 {
                                     "type": "number",
                                     "errorMsg": "Longitude must be between -180 and 180.",
-                                    "range": [-180, 180]
+                                    "range": [
+                                        -180,
+                                        180
+                                    ]
                                 }
                             ]
                         },
@@ -117,7 +129,10 @@
                                 {
                                     "type": "number",
                                     "errorMsg": "Radius must be between 1 and 500 nautical miles.",
-                                    "range": [1, 500]
+                                    "range": [
+                                        1,
+                                        500
+                                    ]
                                 }
                             ]
                         }
@@ -142,17 +157,34 @@
             "table": {
                 "actions": [
                     "edit",
-                    "enable",
                     "delete",
                     "clone"
                 ],
                 "header": [
-                    {"label": "Name", "field": "name"},
-                    {"label": "Interval", "field": "interval"},
-                    {"label": "Index", "field": "index"},
-                    {"label": "ADS-B host", "field": "adsb_host"},
-                    {"label": "Radius (nm)", "field": "radius_nm"},
-                    {"label": "Status", "field": "disabled"}
+                    {
+                        "label": "Name",
+                        "field": "name"
+                    },
+                    {
+                        "label": "Interval",
+                        "field": "interval"
+                    },
+                    {
+                        "label": "Index",
+                        "field": "index"
+                    },
+                    {
+                        "label": "ADS-B host",
+                        "field": "adsb_host"
+                    },
+                    {
+                        "label": "Radius (nm)",
+                        "field": "radius_nm"
+                    },
+                    {
+                        "label": "Status",
+                        "field": "disabled"
+                    }
                 ]
             },
             "services": [
@@ -256,9 +288,9 @@
     "meta": {
         "name": "TA-airspace-watch",
         "restRoot": "TA_airspace_watch",
-        "version": "0.1.0",
+        "version": "1.0.0",
         "displayName": "AirspaceWatch — Live ADS-B Modular Input",
-        "schemaVersion": "0.0.9",
+        "schemaVersion": "0.0.10",
         "supportedThemes": [
             "light",
             "dark"
