@@ -1,0 +1,11 @@
+#
+# Project-level requirements for building, testing, and packaging
+# TA-airspace-watch. Install into a venv before running ucc-gen / App Inspect.
+#
+
+splunk-add-on-ucc-framework>=5.49.0
+splunk-appinspect>=3.6.0
+requests>=2.32.0
+splunk-sdk>=2.0.2
+splunktaucclib>=6.6.0
+solnlib>=5.5.0

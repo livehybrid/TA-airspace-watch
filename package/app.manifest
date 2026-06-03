@@ -1,0 +1,59 @@
+{
+    "schemaVersion": "2.0.0",
+    "info": {
+        "title": "AirspaceWatch — Live ADS-B Modular Input",
+        "id": {
+            "group": null,
+            "name": "TA-airspace-watch",
+            "version": "0.1.0"
+        },
+        "author": [
+            {
+                "name": "Will Searle",
+                "email": "will@livehybrid.com",
+                "company": "livehybrid"
+            }
+        ],
+        "releaseDate": null,
+        "description": "Modular input that polls a local tar1090/dump1090 ADS-B receiver and emits one Splunk event per aircraft. Powers the AirspaceWatch dashboard (Leeds, UK / 50nm radius) for the Splunk Dashboard Contest 2026.",
+        "classification": {
+            "intendedAudience": "IT Professionals",
+            "categories": [
+                "IT Operations"
+            ],
+            "developmentStatus": "Beta"
+        },
+        "commonInformationModels": null,
+        "license": {
+            "name": "Apache-2.0",
+            "text": "./LICENSES/LICENSE.txt",
+            "uri": null
+        },
+        "privacyPolicy": {
+            "name": null,
+            "text": null,
+            "uri": null
+        },
+        "releaseNotes": {
+            "name": "README",
+            "text": "./README.txt",
+            "uri": null
+        }
+    },
+    "dependencies": null,
+    "tasks": [
+        "airspace_watch"
+    ],
+    "inputGroups": null,
+    "incompatibleApps": null,
+    "platformRequirements": null,
+    "supportedDeployments": [
+        "_standalone",
+        "_distributed",
+        "_search_head_clustering"
+    ],
+    "targetWorkloads": [
+        "_search_heads",
+        "_indexers"
+    ]
+}

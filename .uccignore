@@ -1,0 +1,18 @@
+#
+# Patterns excluded from the ucc-gen build output. ucc-gen reads this file
+# from the package source root.
+#
+
+# Editor / OS junk
+.DS_Store
+Thumbs.db
+*.swp
+*.bak
+
+# Local dev caches
+__pycache__/
+*.pyc
+*.pyo
+
+# Tests should not ship to SplunkBase
+tests/

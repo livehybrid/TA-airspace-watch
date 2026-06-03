@@ -1,0 +1,16 @@
+#
+# Runtime dependencies for TA-airspace-watch.
+#
+# ucc-gen vendors these into package/lib/ at build time so the modular input
+# can import them inside Splunk's bundled Python runtime without touching
+# the system site-packages.
+#
+# Splunk Cloud constraint: NO compiled binaries inside lib/. The packages
+# below are pure Python (or, in the case of certifi/charset-normalizer/idna,
+# pure-Python distributions). Do not add anything with native extensions.
+#
+
+requests>=2.32.0,<3.0.0
+splunk-sdk>=2.0.2,<3.0.0
+splunktaucclib>=6.6.0,<7.0.0
+solnlib>=5.5.0,<6.0.0

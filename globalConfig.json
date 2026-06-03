@@ -1,0 +1,268 @@
+{
+    "pages": {
+        "configuration": {
+            "title": "Configuration",
+            "description": "Receiver and geofence defaults shared by every airspace_watch input. Per-input values on the Inputs tab override these.",
+            "tabs": [
+                {
+                    "name": "receiver",
+                    "title": "Receiver",
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "ADS-B host",
+                            "field": "adsb_host",
+                            "help": "Hostname or IP of the tar1090 / dump1090-fa receiver.",
+                            "required": true,
+                            "defaultValue": "192.168.0.58",
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of host must be between 1 and 253 characters.",
+                                    "minLength": 1,
+                                    "maxLength": 253
+                                }
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "label": "ADS-B port",
+                            "field": "adsb_port",
+                            "help": "TCP port for the receiver HTTP API (tar1090 default 8080).",
+                            "required": true,
+                            "defaultValue": "8080",
+                            "validators": [
+                                {
+                                    "type": "number",
+                                    "errorMsg": "Port must be between 1 and 65535.",
+                                    "range": [1, 65535]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "label": "Aircraft JSON path",
+                            "field": "adsb_path",
+                            "help": "HTTP path for the aircraft JSON endpoint. tar1090 default: /data/aircraft.json. dump1090-fa: /dump1090-fa/data/aircraft.json.",
+                            "required": true,
+                            "defaultValue": "/data/aircraft.json",
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Path must be between 1 and 200 characters.",
+                                    "minLength": 1,
+                                    "maxLength": 200
+                                }
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "label": "Request timeout (s)",
+                            "field": "request_timeout",
+                            "help": "HTTP request timeout for each poll cycle, in seconds.",
+                            "required": true,
+                            "defaultValue": "4",
+                            "validators": [
+                                {
+                                    "type": "number",
+                                    "errorMsg": "Timeout must be between 1 and 60 seconds.",
+                                    "range": [1, 60]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "geofence",
+                    "title": "Geofence",
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "Centre latitude",
+                            "field": "center_lat",
+                            "help": "Centre latitude (degrees, WGS84). Leeds is 53.8.",
+                            "required": true,
+                            "defaultValue": "53.8",
+                            "validators": [
+                                {
+                                    "type": "number",
+                                    "errorMsg": "Latitude must be between -90 and 90.",
+                                    "range": [-90, 90]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "label": "Centre longitude",
+                            "field": "center_lon",
+                            "help": "Centre longitude (degrees, WGS84). Leeds is -1.55.",
+                            "required": true,
+                            "defaultValue": "-1.55",
+                            "validators": [
+                                {
+                                    "type": "number",
+                                    "errorMsg": "Longitude must be between -180 and 180.",
+                                    "range": [-180, 180]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "label": "Radius (nm)",
+                            "field": "radius_nm",
+                            "help": "Radius from the centre point, in nautical miles. Aircraft outside the radius are dropped.",
+                            "required": true,
+                            "defaultValue": "50",
+                            "validators": [
+                                {
+                                    "type": "number",
+                                    "errorMsg": "Radius must be between 1 and 500 nautical miles.",
+                                    "range": [1, 500]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "loggingTab",
+                    "levels": [
+                        "DEBUG",
+                        "INFO",
+                        "WARNING",
+                        "ERROR",
+                        "CRITICAL"
+                    ],
+                    "help": "Modular input log level. Log file: $SPLUNK_HOME/var/log/splunk/ta_airspace_watch.log"
+                }
+            ]
+        },
+        "inputs": {
+            "title": "Inputs",
+            "description": "One stanza per ADS-B receiver. The Default Inputs settings (Configuration tab) are used unless overridden here.",
+            "table": {
+                "actions": [
+                    "edit",
+                    "enable",
+                    "delete",
+                    "clone"
+                ],
+                "header": [
+                    {"label": "Name", "field": "name"},
+                    {"label": "Interval", "field": "interval"},
+                    {"label": "Index", "field": "index"},
+                    {"label": "ADS-B host", "field": "adsb_host"},
+                    {"label": "Radius (nm)", "field": "radius_nm"},
+                    {"label": "Status", "field": "disabled"}
+                ]
+            },
+            "services": [
+                {
+                    "name": "airspace_watch",
+                    "title": "ADS-B Receiver",
+                    "description": "Poll a tar1090/dump1090 receiver every N seconds and emit one event per aircraft within the configured radius.",
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "Name",
+                            "field": "name",
+                            "help": "Unique name for this data input. Letters, digits, and underscores only.",
+                            "required": true,
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Input name must begin with a letter and contain only letters, digits, and underscores.",
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                },
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of input name must be between 1 and 100.",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                }
+                            ]
+                        },
+                        {
+                            "type": "interval",
+                            "field": "interval",
+                            "label": "Interval (s)",
+                            "help": "Poll interval in seconds. 5 is recommended for live radar; lower will hammer the receiver.",
+                            "required": true,
+                            "defaultValue": "5"
+                        },
+                        {
+                            "type": "text",
+                            "label": "Index",
+                            "field": "index",
+                            "help": "Splunk index to write events to.",
+                            "required": true,
+                            "defaultValue": "main",
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of index must be between 1 and 80.",
+                                    "minLength": 1,
+                                    "maxLength": 80
+                                }
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "label": "Sourcetype",
+                            "field": "sourcetype",
+                            "help": "Sourcetype for emitted events. Leave as airspace:adsb so props.conf rules apply.",
+                            "required": true,
+                            "defaultValue": "airspace:adsb",
+                            "options": {
+                                "display": true
+                            },
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "errorMsg": "Length of sourcetype must be between 1 and 80.",
+                                    "minLength": 1,
+                                    "maxLength": 80
+                                }
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "label": "ADS-B host (override)",
+                            "field": "adsb_host",
+                            "help": "Override the default receiver host for this input. Leave blank to use the Configuration default.",
+                            "required": false,
+                            "defaultValue": "192.168.0.58"
+                        },
+                        {
+                            "type": "text",
+                            "label": "ADS-B port (override)",
+                            "field": "adsb_port",
+                            "help": "Override the default receiver port. Leave blank to use the Configuration default.",
+                            "required": false,
+                            "defaultValue": "8080"
+                        },
+                        {
+                            "type": "text",
+                            "label": "Radius (nm, override)",
+                            "field": "radius_nm",
+                            "help": "Override the default geofence radius for this input. Leave blank to use the Configuration default.",
+                            "required": false,
+                            "defaultValue": "50"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "meta": {
+        "name": "TA-airspace-watch",
+        "restRoot": "TA_airspace_watch",
+        "version": "0.1.0",
+        "displayName": "AirspaceWatch — Live ADS-B Modular Input",
+        "schemaVersion": "0.0.9",
+        "supportedThemes": [
+            "light",
+            "dark"
+        ],
+        "isVisible": true
+    }
+}

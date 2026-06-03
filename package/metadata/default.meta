@@ -1,0 +1,17 @@
+#
+# Default permissions for TA-airspace-watch objects. Configuration and
+# inputs are admin-only by default; props.conf rules are globally
+# exported so emitted events parse correctly even on indexers.
+#
+
+[]
+access = read : [ * ], write : [ admin, sc_admin ]
+export = system
+
+[props/airspace:adsb]
+access = read : [ * ], write : [ admin, sc_admin ]
+export = system
+
+[inputs]
+access = read : [ admin, sc_admin ], write : [ admin, sc_admin ]
+export = none

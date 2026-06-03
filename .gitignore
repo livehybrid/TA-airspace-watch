@@ -1,0 +1,22 @@
+# UCC build artefacts
+output/
+*.spl
+*.tar.gz
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# App Inspect reports
+appinspect-report*.html
+appinspect-report*.json
