@@ -1,0 +1,47 @@
+services:
+  splunk:
+    image: splunk/splunk:10.0
+    container_name: ta_airspace_watch_splunk
+    hostname: splunk
+    environment:
+      SPLUNK_START_ARGS: --accept-license
+      SPLUNK_PASSWORD: ${SPLUNK_PASSWORD:-Changeme1!}
+      SPLUNK_HEC_TOKEN: ""
+    ports:
+      # Fixed ports so the suite can hit https://127.0.0.1:8089 directly.
+      # On a CI runner nothing else contends for these.
+      - "8000:8000"
+      - "8089:8089"
+    volumes:
+      # The built add-on is bind-mounted live from ../stage so a rebuild on the
+      # host updates the running container. The stage/ copy is a throwaway test
+      # build (widened perms), never the packaged artefact.
+      - ../stage/TA-airspace-watch:/opt/splunk/etc/apps/TA-airspace-watch
+    depends_on:
+      mock-receiver:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsk", "https://localhost:8089/services/server/info", "-u", "admin:${SPLUNK_PASSWORD:-Changeme1!}"]
+      interval: 10s
+      timeout: 5s
+      retries: 40
+      start_period: 30s
+
+  # Mock tar1090/dump1090 ADS-B receiver. Serves the canned aircraft.json so the
+  # live test is deterministic and needs no LAN/egress — the real receiver
+  # (192.168.0.58) is never reachable from a CI runner. The airspace_watch input
+  # resolves this host over the compose network at http://mock-receiver:8080.
+  mock-receiver:
+    image: python:3.11-slim
+    container_name: ta_airspace_watch_mock
+    hostname: mock-receiver
+    working_dir: /srv
+    command: ["python", "-m", "http.server", "8080"]
+    volumes:
+      - ../tests/fixtures:/srv:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/data/aircraft.json').read()"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 3s
