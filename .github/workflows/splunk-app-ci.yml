@@ -46,6 +46,10 @@ jobs:
         shell: bash
         run: |
           ucc-gen build --source package --ta-version "${{ steps.version.outputs.TAG_VERSION }}"
+          # Pin the runtime interpreter to Python 3.13 (Splunk 10). ucc-gen hardcodes
+          # python.version = python3 in its inputs/restmap templates with no override
+          # knob, so normalise the generated confs post-build.
+          find output/TA-airspace-watch/default -name '*.conf' -exec sed -i 's/^python\.version = python3$/python.version = python3.13/' {} +
           # Normalise permissions — AppInspect rejects 775/664. App dirs 755, files 644.
           mkdir -p stage
           cp -r output/TA-airspace-watch stage/TA-airspace-watch
@@ -96,6 +100,8 @@ jobs:
         shell: bash
         run: |
           ucc-gen build --source package --ta-version 1.0.0
+          # Pin the runtime interpreter to Python 3.13 (see package job for why).
+          find output/TA-airspace-watch/default -name '*.conf' -exec sed -i 's/^python\.version = python3$/python.version = python3.13/' {} +
           rm -rf stage && mkdir -p stage
           cp -r output/TA-airspace-watch stage/TA-airspace-watch
           # The test container's splunk user (a different uid) must read the app
