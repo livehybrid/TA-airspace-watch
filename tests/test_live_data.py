@@ -90,8 +90,10 @@ def airspace_input(splunk):
         "center_lon": CENTER_LON,
         "radius_nm": RADIUS_NM,
         "request_timeout": "4",
-        "disabled": "0",
     }
+    # NB: this modular-input create handler rejects a "disabled" arg on POST
+    # ("Argument \"disabled\" is not supported by this handler"). We enable the
+    # stanza explicitly below (line ~104) rather than passing disabled=0 here.
     used, last = None, ""
     for path in CREATE_PATHS:
         status, body = splunk.request("POST", path, data=params)
