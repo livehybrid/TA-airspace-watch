@@ -121,11 +121,18 @@ def _input_error_logged(splunk):
 
 
 def _collect(splunk):
+    # `| spath` parses each event's JSON `_raw` directly, so the assertions read
+    # the exact payload the modular input emitted regardless of whether the
+    # sourcetype's search-time auto-kv (props: KV_MODE=json) is in scope for this
+    # search context. This is also how a downstream dashboard panel would read
+    # the fields, so it tests the real contract without a props/namespace
+    # dependency. (Observed: bare auto-kv surfaced no fields in the oneshot
+    # context on the splunk/splunk:10.0 image; spath is deterministic.)
     deadline = time.time() + POLL_SECONDS
     hits = []
     while time.time() < deadline:
         hits = splunk.search(
-            f"search index={INDEX} sourcetype={SOURCETYPE} | head 50",
+            f"search index={INDEX} sourcetype={SOURCETYPE} | head 50 | spath",
             earliest="-15m",
         )
         if hits:
@@ -144,7 +151,7 @@ def test_airspace_events_indexed(splunk, airspace_input):
             f"input error signatures in _internal: {detail}"
         )
 
-    # Splunk extracted the JSON payload the script emits (props: KV_MODE=json).
+    # The event carries the JSON payload the script emits, parsed via `| spath`.
     row = hits[0]
     missing = [
         f for f in ("hex", "lat", "lon", "altitude_ft", "distance_nm")
