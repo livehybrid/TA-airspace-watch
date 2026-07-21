@@ -46,13 +46,11 @@ jobs:
         shell: bash
         run: |
           ucc-gen build --source package --ta-version "${{ steps.version.outputs.TAG_VERSION }}"
-          # ucc-gen hardcodes `python.version = python3` in its restmap handler templates
-          # with no override knob. Normalise the generated confs post-build to:
-          #   python.version = python3.9   (legacy setting, AppInspect allow-listed, Splunk <=10.1)
-          #   python.required = 3.9,3.13   (Splunk 10.2+ setting; picks the highest available = 3.13)
-          # inputs.conf already carries both from package/default (ucc-gen preserves them), so this
-          # only rewrites the bare `python3` restmap lines; it is a no-op on the inputs stanzas.
-          find output/TA-airspace-watch/default -name '*.conf' -exec sed -i 's/^python\.version = python3$/python.version = python3.9\npython.required = 3.9,3.13/' {} +
+          # Python runtime is pinned to 3.9 at source: meta.supportedPythonVersion in
+          # globalConfig.json makes ucc-gen emit `python.required = 3.9` on every generated
+          # restmap handler, and package/default/inputs.conf carries `python.version = python3`
+          # + `python.required = 3.9` (ucc-gen preserves it verbatim). No post-build rewrite
+          # needed — the previous sed reverted the pin and produced a duplicate python.required.
           # Normalise permissions — AppInspect rejects 775/664. App dirs 755, files 644.
           mkdir -p stage
           cp -r output/TA-airspace-watch stage/TA-airspace-watch
@@ -103,8 +101,7 @@ jobs:
         shell: bash
         run: |
           ucc-gen build --source package --ta-version 1.0.0
-          # Normalise generated restmap handlers to python3.9 + python.required (see package job for why).
-          find output/TA-airspace-watch/default -name '*.conf' -exec sed -i 's/^python\.version = python3$/python.version = python3.9\npython.required = 3.9,3.13/' {} +
+          # Python 3.9 pin comes from globalConfig meta + package/default (see package job); no post-build rewrite.
           rm -rf stage && mkdir -p stage
           cp -r output/TA-airspace-watch stage/TA-airspace-watch
           # The test container's splunk user (a different uid) must read the app
