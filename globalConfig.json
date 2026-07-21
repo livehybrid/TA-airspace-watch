@@ -291,6 +291,9 @@
         "version": "1.0.0",
         "displayName": "AirspaceWatch — Live ADS-B Modular Input",
         "schemaVersion": "0.0.10",
+        "supportedPythonVersion": [
+            "3.9"
+        ],
         "supportedThemes": [
             "light",
             "dark"
