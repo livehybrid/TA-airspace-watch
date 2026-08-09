@@ -1,0 +1,76 @@
+{
+  "messages": 184213,
+  "aircraft": [
+    {
+      "hex": "4008f2",
+      "flight": "BAW123  ",
+      "lat": 53.81,
+      "lon": -1.54,
+      "alt_baro": 35000,
+      "gs": 452,
+      "track": 187,
+      "baro_rate": -64,
+      "squawk": "1234",
+      "t": "A320",
+      "category": "A3",
+      "rssi": -11.5,
+      "seen": 0.3
+    },
+    {
+      "hex": "407a3c",
+      "flight": "EZY88LM ",
+      "lat": 53.5,
+      "lon": -1.9,
+      "alt_baro": 12000,
+      "gs": 320,
+      "track": 95,
+      "baro_rate": 1216,
+      "squawk": "6150",
+      "t": "A20N",
+      "category": "A3",
+      "rssi": -18.2,
+      "seen": 1.1
+    },
+    {
+      "hex": "4ca7b5",
+      "flight": "RYR47QP ",
+      "lat": 54.1,
+      "lon": -1.2,
+      "alt_baro": 2400,
+      "gs": 180,
+      "track": 270,
+      "geom_rate": 832,
+      "squawk": "7000",
+      "t": "B738",
+      "category": "A3",
+      "rssi": -21.0,
+      "seen": 2.0
+    },
+    {
+      "hex": "cafef0",
+      "flight": "IBE3820 ",
+      "lat": 40.42,
+      "lon": -3.7,
+      "alt_baro": 38000,
+      "gs": 480,
+      "track": 45,
+      "squawk": "2201",
+      "t": "A359",
+      "category": "A5",
+      "rssi": -24.6,
+      "seen": 0.9
+    },
+    {
+      "hex": "3c6da8",
+      "flight": "DLH9AB  ",
+      "alt_baro": 5000,
+      "gs": 210,
+      "track": 130,
+      "squawk": "3410",
+      "t": "B77W",
+      "category": "A5",
+      "rssi": -19.9,
+      "seen": 0.5
+    }
+  ]
+}

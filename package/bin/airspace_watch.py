@@ -24,6 +24,8 @@ import os
 import sys
 import time
 import traceback
+import urllib.error
+import urllib.request
 from datetime import datetime, timezone
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
@@ -35,12 +37,6 @@ try:
     _HAS_SOLNLIB = True
 except Exception:  # pragma: no cover - solnlib only present in a built TA
     _HAS_SOLNLIB = False
-
-try:
-    import requests
-except ImportError:  # pragma: no cover - requests is bundled at build time
-    requests = None  # type: ignore[assignment]
-
 
 APP_NAME = "TA-airspace-watch"
 SETTINGS_CONF = "airspace_watch_settings"
@@ -98,16 +94,18 @@ def haversine_nm(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 # ---------------------------------------------------------------------------
 
 def fetch_aircraft_json(host: str, port: int, path: str, timeout: float) -> Dict[str, Any]:
-    """Fetch the receiver's aircraft.json. Raises on any network or HTTP error."""
-    if requests is None:
-        raise RuntimeError(
-            "The 'requests' library is not available. ucc-gen should vendor it "
-            "into package/lib at build time."
-        )
+    """Fetch the receiver's aircraft.json. Raises on any network or HTTP error.
+
+    Uses the standard library rather than ``requests``: the modular input runs
+    under Splunk's bundled Python (3.9 on Splunk 10.0/10.1), and modern
+    ``requests`` releases use PEP 604 ``X | Y`` annotations that fail to import
+    on < 3.10, which crashes scheme introspection and blocks registration.
+    """
     url = "http://{host}:{port}{path}".format(host=host, port=port, path=path)
-    resp = requests.get(url, timeout=timeout)
-    resp.raise_for_status()
-    return resp.json()
+    req = urllib.request.Request(url, headers={"Accept": "application/json"})
+    with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310 - operator-configured receiver
+        charset = resp.headers.get_content_charset() or "utf-8"
+        return json.loads(resp.read().decode(charset))
 
 
 def _coerce_float(value: Any) -> Optional[float]:
