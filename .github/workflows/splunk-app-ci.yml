@@ -28,7 +28,11 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v7
         with:
-          python-version: "3.11"
+          # The add-on runs on Splunk's Python 3.9 (python.required = 3.9), and
+          # ucc-gen vendors whatever pip resolves for THIS interpreter. Built on
+          # 3.11, the package shipped ten 3.10+-only libraries (requests 2.34,
+          # protobuf 7, grpcio, opentelemetry 1.44).
+          python-version: "3.9"
 
       - name: Determine version
         id: version
@@ -61,6 +65,29 @@ jobs:
           cp -r output/TA-airspace-watch stage/TA-airspace-watch
           find stage/TA-airspace-watch -type d -exec chmod 755 {} +
           find stage/TA-airspace-watch -type f -exec chmod 644 {} +
+
+      - name: Vendored libraries support Python 3.9
+        shell: bash
+        run: |
+          pip install --quiet packaging
+          python3 - stage/TA-airspace-watch/lib <<'PY'
+          import email, pathlib, sys
+          from packaging.specifiers import SpecifierSet
+          RUNTIME = "3.9"
+          lib = pathlib.Path(sys.argv[1])
+          metas = sorted(lib.glob("*.dist-info/METADATA"))
+          if not metas:
+              sys.exit(f"no *.dist-info/METADATA under {lib}: cannot check vendored libraries")
+          bad = []
+          for meta in metas:
+              m = email.message_from_string(meta.read_text(errors="replace"))
+              rp = m.get("Requires-Python")
+              if rp and not SpecifierSet(rp).contains(RUNTIME, prereleases=True):
+                  bad.append(f"{m['Name']} {m['Version']} (Requires-Python {rp})")
+          print(f"checked {len(metas)} vendored distributions against Python {RUNTIME}")
+          if bad:
+              sys.exit("vendored libraries that do not support Python " + RUNTIME + ":\n  " + "\n  ".join(bad))
+          PY
 
       - name: Generate package tarball
         shell: bash
@@ -97,7 +124,11 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v7
         with:
-          python-version: "3.11"
+          # The add-on runs on Splunk's Python 3.9 (python.required = 3.9), and
+          # ucc-gen vendors whatever pip resolves for THIS interpreter. Built on
+          # 3.11, the package shipped ten 3.10+-only libraries (requests 2.34,
+          # protobuf 7, grpcio, opentelemetry 1.44).
+          python-version: "3.9"
 
       - name: Install UCC framework + pytest
         run: pip install --upgrade splunk-add-on-ucc-framework pytest
