@@ -6,7 +6,7 @@ updates:
       interval: "weekly"
     open-pull-requests-limit: 5
     ignore:
-      # Splunk Cloud runtime is py3.9: splunk-sdk 3.x is py3.13-only and
+      # Splunk 10.1 and lower run add-ons on py3.9: splunk-sdk 3.x is py3.13-only and
       # requests >=2.33 drops py3.9; the root requirements also feed the
       # ucc-gen package job, so these majors break the build on purpose.
       - dependency-name: "splunk-sdk"
