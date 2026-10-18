@@ -54,7 +54,7 @@ jobs:
       - name: Build add-on (ucc-gen)
         shell: bash
         run: |
-          ucc-gen build --source package --ta-version "${{ steps.version.outputs.TAG_VERSION }}"
+          ucc-gen build --source package --ta-version "${{ steps.version.outputs.VERSION_WITH_HASH }}"
           # python.required = 3.13 comes from meta.supportedPythonVersion in globalConfig.json
           # (generated restmap/inputs stanzas) and package/default/inputs.conf (preserved
           # verbatim). No post-build rewrite.
@@ -95,6 +95,30 @@ jobs:
           tar -czf ../dist/TA-airspace-watch-${{ steps.version.outputs.VERSION_WITH_HASH }}.tar.gz TA-airspace-watch/
           cd ..
           ls -la dist/
+
+      - name: Verify package metadata
+        # Reads the tarball itself; the expected version comes from the ref and
+        # git, independently of the version step.
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then V="${GITHUB_REF#refs/tags/v}"; else V="1.0.0"; fi
+          export WANT_VERSION="${V}+$(git rev-parse --short HEAD)"
+          python3 - dist/*.tar.gz <<'PY'
+          import configparser, json, os, sys, tarfile
+          want = os.environ["WANT_VERSION"]
+          with tarfile.open(sys.argv[1]) as tar:
+              raw = tar.extractfile("TA-airspace-watch/default/app.conf").read().decode()
+              manifest = json.load(tar.extractfile("TA-airspace-watch/app.manifest"))
+          conf = configparser.ConfigParser(interpolation=None, strict=False)
+          conf.read_string(raw)
+          got = {"launcher.version": conf.get("launcher", "version", fallback=None),
+                 "id.version": conf.get("id", "version", fallback=None),
+                 "app.manifest": manifest["info"]["id"]["version"]}
+          print(got, "build", conf.get("install", "build", fallback=None))
+          bad = [k for k, v in got.items() if v != want]
+          if bad or not conf.get("install", "build", fallback=""):
+              sys.exit(f"package metadata is wrong for {want}: {bad or 'no [install] build'}")
+          PY
 
       - name: Upload package artifact
         uses: actions/upload-artifact@v7
