@@ -169,7 +169,7 @@ jobs:
         env:
           WANT_313: ${{ matrix.splunk != '10.0' }}
         run: |
-          lines=$(docker exec -u splunk ta_airspace_watch_splunk grep -h "ExecProcessor" /opt/splunk/var/log/splunk/splunkd.log | grep "/etc/apps/TA-airspace-watch/bin/" || true)
+          lines=$(docker exec -u splunk ta_airspace_watch_splunk grep -h "ExecProcessor.*exec process: " /opt/splunk/var/log/splunk/splunkd.log | grep "/etc/apps/TA-airspace-watch/bin/" || true)
           printf '%s\n' "$lines" | tail -n 20
           [ -n "$lines" ] || { echo "::error::no ExecProcessor lines for TA-airspace-watch"; exit 1; }
           if [ "$WANT_313" = true ]; then
