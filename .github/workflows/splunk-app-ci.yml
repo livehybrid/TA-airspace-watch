@@ -87,6 +87,12 @@ jobs:
               sys.exit("vendored libraries that do not support Python " + RUNTIME + ":\n  " + "\n  ".join(bad))
           PY
 
+      - name: Bundled certifi does not trust the compromised eMudhra root
+        shell: bash
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/livehybrid/deploy-splunk-app-action/main/scripts/check_bundled_certifi.py \
+            | python3 - stage/TA-airspace-watch
+
       - name: Generate package tarball
         shell: bash
         run: |
