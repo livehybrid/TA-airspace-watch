@@ -14,9 +14,18 @@ const GC = require(path.join(__dirname, '..', 'globalConfig.json'));
 const APP = GC.meta.name;
 const PAGE_TITLE = GC.pages.inputs.title;
 
-// Values per service, keyed by field name; the label typed into comes from
-// globalConfig. The receiver host is the compose network's mock, so an
-// enabled input polls something real.
+// What the page should save, per service: the visible label typed into and the
+// inputs.conf key it must land under. Written out here, not looked up from
+// globalConfig.json by field name: a lookup by field would follow a renamed or
+// remapped field and agree with the bug (a mutant that did exactly that went red
+// in the lookup, not in the assertion). The receiver host is the compose
+// network's mock, so an enabled input polls something real.
+const FIELDS = {
+    airspace_watch: {
+        name: 'Name', interval: 'Interval (s)', index: 'Index', sourcetype: 'Sourcetype',
+        adsb_host: 'ADS-B host (override)', adsb_port: 'ADS-B port (override)', radius_nm: 'Radius (nm, override)',
+    },
+};
 const VALUES = {
     airspace_watch: {
         create: { interval: '30', index: 'main', sourcetype: 'airspace:adsb', adsb_host: 'mock-receiver',
@@ -37,7 +46,7 @@ test('every input service has test values', () => {
 });
 
 for (const service of GC.pages.inputs.services) {
-    const label = (field) => service.entity.find((e) => e.field === field).label;
+    const label = (key) => FIELDS[service.name][key];
     const byLabel = (vals) => Object.fromEntries(Object.entries(vals).map(([f, v]) => [label(f), v]));
     const stanza = (name) => rest.inputStanza(APP, service.name, name);
 

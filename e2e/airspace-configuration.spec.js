@@ -19,7 +19,14 @@ const APP = GC.meta.name;
 const SETTINGS_CONF = `${GC.meta.restRoot.toLowerCase()}_settings`;
 const tab = (name) => GC.pages.configuration.tabs.find((t) => t.name === name);
 const entity = (tabName, field) => tab(tabName).entity.find((e) => e.field === field);
-const label = (tabName, field) => entity(tabName, field).label;
+// Visible label -> settings key, written out rather than looked up by field in
+// globalConfig.json, so a remapped field cannot move the lookup with it.
+const LABELS = {
+    receiver: { adsb_host: 'ADS-B host', adsb_port: 'ADS-B port', adsb_path: 'Aircraft JSON path',
+        request_timeout: 'Request timeout (s)' },
+    geofence: { center_lat: 'Centre latitude', center_lon: 'Centre longitude', radius_nm: 'Radius (nm)' },
+};
+const label = (tabName, key) => LABELS[tabName][key];
 const PAGE_TITLE = GC.pages.configuration.title;
 
 let rest;
