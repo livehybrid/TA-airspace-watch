@@ -191,7 +191,6 @@
                 {
                     "name": "airspace_watch",
                     "title": "ADS-B Receiver",
-                    "description": "Poll a tar1090/dump1090 receiver every N seconds and emit one event per aircraft within the configured radius.",
                     "entity": [
                         {
                             "type": "text",
