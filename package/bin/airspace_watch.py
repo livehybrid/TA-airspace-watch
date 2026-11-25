@@ -39,7 +39,10 @@ except Exception:  # pragma: no cover - solnlib only present in a built TA
     _HAS_SOLNLIB = False
 
 APP_NAME = "TA-airspace-watch"
-SETTINGS_CONF = "airspace_watch_settings"
+# The conf the Configuration page writes: UCC names it <restRoot lower-cased>_settings.
+# Until Nov 2026 this read a hand-written airspace_watch_settings.conf that the page
+# never wrote, so every Receiver, Geofence and Logging change was ignored.
+SETTINGS_CONF = "ta_airspace_watch_settings"
 EARTH_RADIUS_NM = 3440.065  # nautical miles
 
 
@@ -209,7 +212,7 @@ def _settings_from_conf_manager(session_key: str) -> Dict[str, Dict[str, Any]]:
 
 
 def _settings_from_conf_files() -> Dict[str, Dict[str, Any]]:
-    """Fallback: read airspace_watch_settings.conf directly."""
+    """Fallback: read ta_airspace_watch_settings.conf directly."""
     splunk_home = os.environ.get("SPLUNK_HOME", "/opt/splunk")
     candidates = [
         os.path.join(splunk_home, "etc", "apps", APP_NAME, "local", SETTINGS_CONF + ".conf"),
