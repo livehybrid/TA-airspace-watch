@@ -20,3 +20,8 @@ Thumbs.db
 # App Inspect reports
 appinspect-report*.html
 appinspect-report*.json
+
+# Playwright
+e2e/node_modules/
+e2e/e2e-results/
+stage/
