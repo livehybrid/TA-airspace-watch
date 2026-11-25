@@ -81,19 +81,29 @@ async function openTab(page, title) {
 // Forms
 // ---------------------------------------------------------------------------
 
+/** A regex for a control's accessible name: react-ui renders the required
+ *  marker as a "*" span inside the <label>, before the text. */
+const labelRe = (label) => new RegExp(`^\\s*\\*?\\s*${escapeRe(label)}\\s*\\*?\\s*$`);
+
+/** The Page that owns `scope` (a Page or a Locator). Locators passed to
+ *  filter({ has }) must be built from the page, not from the scope. */
+const pageOf = (scope) => (typeof scope.page === 'function' ? scope.page() : scope);
+
+/** The control-group wrapper (react-ui ControlGroup) whose <label> reads `label`. */
+function controlGroup(scope, label) {
+    return scope.locator('[data-test="control-group"]')
+        .filter({ has: pageOf(scope).locator('label').filter({ hasText: labelRe(label) }) });
+}
+
 /** The input control labelled `label` inside `scope` (a page, a dialog or a
  *  tab panel). UCC wraps every control in a ControlGroup whose <label> carries
- *  the globalConfig label; react-ui links the two with aria-labelledby. The
- *  structural route (the wrapper that contains that label text) is the
- *  fallback when a control is not linked. The field name is never consulted.
+ *  the globalConfig label, linked to the input by aria-labelledby; the
+ *  structural route (the wrapper that holds that label) is the fallback. The
+ *  UCC field name is never consulted.
  */
 function control(scope, label) {
-    const re = new RegExp(`^\\s*${escapeRe(label)}\\s*\\*?\\s*$`);
-    const byAria = scope.getByLabel(re);
-    const byStructure = scope
-        .locator('[data-name]')
-        .filter({ has: scope.locator('label').filter({ hasText: re }) })
-        .locator('input, textarea');
+    const byAria = scope.getByRole('textbox', { name: labelRe(label) });
+    const byStructure = controlGroup(scope, label).locator('input, textarea');
     return byAria.or(byStructure).first();
 }
 
@@ -111,12 +121,8 @@ async function readText(scope, label) {
 
 /** Pick `option` from the single-select labelled `label`. */
 async function selectOption(page, scope, label, option) {
-    const re = new RegExp(`^\\s*${escapeRe(label)}\\s*\\*?\\s*$`);
-    const toggle = scope.getByRole('combobox', { name: re })
-        .or(scope.getByRole('button', { name: re }))
-        .or(scope.locator('[data-name]')
-            .filter({ has: scope.locator('label').filter({ hasText: re }) })
-            .locator('button, [role="combobox"]'))
+    const toggle = scope.getByRole('combobox', { name: labelRe(label) })
+        .or(controlGroup(scope, label).locator('button, [role="combobox"]'))
         .first();
     await toggle.click();
     await page.getByRole('option', { name: option, exact: true }).click();
@@ -290,7 +296,7 @@ module.exports = {
     login, watchAppErrors, gotoUccPage, openTab,
     control, fillText, readText, selectOption, fillForm, saveConfigTab,
     dialog, openCreateInput, submitDialog, inputRow, rowAction, toggleRow,
-    restClient, isTrue, expectConf, expectSecretNotEchoed,
+    restClient, isTrue, expectConf, expectSecretNotEchoed, controlGroup, labelRe,
 };
 
 /*
