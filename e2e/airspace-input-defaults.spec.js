@@ -64,11 +64,16 @@ async function latestPoll(name, since) {
  *  waits for the collector to settle rather than reading the first line. */
 async function expectPoll(name, since, want, what) {
     let last = null;
-    await expect.poll(async () => {
-        last = await latestPoll(name, since);
-        return last && Object.entries(want).every(([k, v]) => last[k] === v);
-    }, { message: `${what}; newest poll line: ${JSON.stringify(last)}`, timeout: 180000, intervals: [10000] })
-        .toBe(true);
+    try {
+        await expect.poll(async () => {
+            last = await latestPoll(name, since);
+            return Boolean(last && Object.entries(want).every(([k, v]) => last[k] === v));
+        }, { timeout: 180000, intervals: [10000] }).toBe(true);
+    } catch (e) {
+        // The message has to be built here: an expect.poll message is fixed
+        // before polling starts, so it would always report the first value.
+        throw new Error(`${what}: wanted ${JSON.stringify(want)}, newest poll line ${JSON.stringify(last)}`);
+    }
 }
 
 // A second back: splunkd refuses (400) a search whose earliest time is the
