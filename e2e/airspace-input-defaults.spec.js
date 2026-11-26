@@ -71,7 +71,9 @@ async function expectPoll(name, since, want, what) {
         .toBe(true);
 }
 
-const now = () => Math.floor(Date.now() / 1000);
+// A second back: splunkd refuses (400) a search whose earliest time is the
+// current second, and expectPoll waits for the newest line anyway.
+const now = () => Math.floor(Date.now() / 1000) - 1;
 
 test('no shipped input appears on the Inputs page', async ({ page }) => {
     expect(await rest.inputStanza(APP, 'airspace_watch', 'default'), '[airspace_watch://default] still ships').toBeNull();
@@ -96,7 +98,7 @@ test('blank overrides use the Configuration page; a set override wins; clearing 
         await ucc.gotoUccPage(page, APP, 'inputs', PAGE_TITLE);
         const d = await ucc.openCreateInput(page, SERVICE_TITLE);
         await ucc.fillForm(d, { [L.name]: name, [L.interval]: '10', [L.host]: '', [L.port]: '', [L.radius]: '' });
-        let since = now() - 2;
+        let since = now();
         await ucc.submitDialog(page, 'Add');
         const made = await ucc.expectConf(() => rest.inputStanza(APP, 'airspace_watch', name), (c) => c !== null,
             `[airspace_watch://${name}] created`);
