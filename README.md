@@ -134,8 +134,10 @@ What changes when you upgrade:
   was never needed. If you had enabled it, its `local/inputs.conf` stanza stays but
   may now lack interval, index and sourcetype; create a new input in its place and
   delete `default`.
-- Clearing an override that was set is accepted (it used to fail validation for
-  the port and radius) and returns the input to the Configuration page value.
+- A blank port or radius override is now accepted. Before, saving an input with
+  either left blank failed with "adsb_port must be numeric" / "radius_nm must be
+  numeric", so the "leave blank" help text could not be followed. Clearing an
+  override returns the input to the Configuration page value.
 
 ## SplunkBase submission
 
