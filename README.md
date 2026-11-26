@@ -114,6 +114,31 @@ contains: `callsign`, `hex`, `lat`, `lon`, `altitude_ft`, `speed_kts`,
 `heading`, `vertical_rate_fpm`, `distance_nm`, `squawk`, `aircraft_type`,
 `category`, `rssi`, `last_seen`.
 
+## Upgrading from 1.0.3 or earlier: input overrides
+
+The ADS-B host, ADS-B port and Radius fields on an input are overrides. From the
+release after 1.0.3 they start empty, and an input with a blank override uses the
+Configuration page setting (Receiver and Geofence tabs). Before, they were
+pre-filled with `192.168.0.58`, `8080` and `50`, so every input saved those values
+and the Configuration page never applied to them.
+
+What changes when you upgrade:
+
+- **Existing inputs keep the values in their stanza.** One created on an earlier
+  version still overrides the Configuration page with whatever it was saved with
+  (usually `192.168.0.58`, `8080`, `50`). To make it follow the Configuration page,
+  open it on the Inputs page, clear the three override fields and press Update.
+  Nothing else about the input changes.
+- **The disabled input called `default` is no longer shipped**, so it disappears
+  from the Inputs table. It held the same defaults as the Configuration page and
+  was never needed. If you had enabled it, its `local/inputs.conf` stanza stays but
+  may now lack interval, index and sourcetype; create a new input in its place and
+  delete `default`.
+- A blank port or radius override is now accepted. Before, saving an input with
+  either left blank failed with "adsb_port must be numeric" / "radius_nm must be
+  numeric", so the "leave blank" help text could not be followed. Clearing an
+  override returns the input to the Configuration page value.
+
 ## SplunkBase submission
 
 1. `ucc-gen build` then `ucc-gen package` — keep the `.spl` exactly as

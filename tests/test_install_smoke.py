@@ -59,3 +59,16 @@ def test_no_startup_import_or_init_errors(splunk):
     )
     hits = splunk.search(spl, earliest="-1h")
     assert not hits, f"startup import/init errors: {[h.get('_raw', '')[:200] for h in hits[:3]]}"
+
+
+def test_no_input_ships_with_the_app(splunk):
+    """default/inputs.conf carries only the scheme stanza: an input shipped
+    there (it was [airspace_watch://default]) shows on the Inputs page as a
+    user input. Read from splunkd's raw conf endpoint, filtered to stanzas
+    this app's own files define."""
+    entries = splunk.entries(f"/servicesNS/nobody/{APP}/configs/conf-inputs", count=0)
+    shipped = sorted(e["name"] for e in entries
+                     if e["name"].startswith("airspace_watch://")
+                     and e.get("acl", {}).get("app") == APP
+                     and "ci_" not in e["name"] and "e2e_" not in e["name"])
+    assert shipped == [], f"inputs shipped with the app: {shipped}"
