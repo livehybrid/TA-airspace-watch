@@ -153,7 +153,7 @@
         },
         "inputs": {
             "title": "Inputs",
-            "description": "One stanza per ADS-B receiver. The Default Inputs settings (Configuration tab) are used unless overridden here.",
+            "description": "One stanza per ADS-B receiver. The Configuration page settings are used for any override left blank.",
             "table": {
                 "actions": [
                     "edit",
@@ -260,24 +260,21 @@
                             "label": "ADS-B host (override)",
                             "field": "adsb_host",
                             "help": "Override the default receiver host for this input. Leave blank to use the Configuration default.",
-                            "required": false,
-                            "defaultValue": "192.168.0.58"
+                            "required": false
                         },
                         {
                             "type": "text",
                             "label": "ADS-B port (override)",
                             "field": "adsb_port",
                             "help": "Override the default receiver port. Leave blank to use the Configuration default.",
-                            "required": false,
-                            "defaultValue": "8080"
+                            "required": false
                         },
                         {
                             "type": "text",
                             "label": "Radius (nm, override)",
                             "field": "radius_nm",
                             "help": "Override the default geofence radius for this input. Leave blank to use the Configuration default.",
-                            "required": false,
-                            "defaultValue": "50"
+                            "required": false
                         }
                     ]
                 }

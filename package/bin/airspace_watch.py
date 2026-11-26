@@ -397,7 +397,9 @@ class AirspaceWatch(Script):
 
     def validate_input(self, validation_definition) -> None:  # type: ignore[override]
         """App Inspect / Splunk Web calls this on create+edit."""
-        params = validation_definition.parameters
+        # A blank override is not a value: the input then uses the
+        # Configuration page setting, so blank fields are left out here.
+        params = {k: v for k, v in validation_definition.parameters.items() if v not in (None, "")}
         errors: List[str] = []
 
         try:
