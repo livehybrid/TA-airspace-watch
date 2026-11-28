@@ -212,11 +212,15 @@ def _settings_from_conf_manager(session_key: str) -> Dict[str, Dict[str, Any]]:
 
 
 def _settings_from_conf_files() -> Dict[str, Dict[str, Any]]:
-    """Fallback: read ta_airspace_watch_settings.conf directly."""
+    """Fallback: read ta_airspace_watch_settings.conf directly.
+
+    default/ first, then local/, so a saved (local) value overrides the shipped
+    default as it does in splunkd.
+    """
     splunk_home = os.environ.get("SPLUNK_HOME", "/opt/splunk")
     candidates = [
-        os.path.join(splunk_home, "etc", "apps", APP_NAME, "local", SETTINGS_CONF + ".conf"),
         os.path.join(splunk_home, "etc", "apps", APP_NAME, "default", SETTINGS_CONF + ".conf"),
+        os.path.join(splunk_home, "etc", "apps", APP_NAME, "local", SETTINGS_CONF + ".conf"),
     ]
     settings: Dict[str, Dict[str, Any]] = {}
     for path in candidates:
@@ -241,9 +245,13 @@ def load_settings(session_key: Optional[str]) -> Dict[str, Dict[str, Any]]:
     if session_key and _HAS_SOLNLIB:
         try:
             return _settings_from_conf_manager(session_key)
-        except Exception:
-            # Fall through to file-based read.
-            pass
+        except Exception as exc:
+            reason = type(exc).__name__
+    else:
+        reason = "no session key" if _HAS_SOLNLIB else "solnlib not importable"
+    # Say so (stderr reaches splunkd.log via ExecProcessor): the file read cannot
+    # see settings splunkd holds elsewhere, so a silent fallback hides a fault.
+    sys.stderr.write("airspace_watch settings fallback to conf files: %s\n" % reason)
     return _settings_from_conf_files()
 
 
@@ -329,8 +337,10 @@ class AirspaceWatch(Script):
     # ---- main loop ---------------------------------------------------------
 
     def stream_events(self, inputs, ew: EventWriter) -> None:  # type: ignore[override]
-        session_key = getattr(self, "_input_definition", None)
-        session_key = getattr(session_key, "metadata", {}).get("session_key") if session_key else None
+        # The session key comes from the InputDefinition splunklib hands us. Not
+        # self._input_definition: that private attribute is gone in splunk-sdk 3,
+        # and without a key the settings silently fell back to the files.
+        session_key = (getattr(inputs, "metadata", None) or {}).get("session_key")
 
         settings = load_settings(session_key)
         log_level = (settings.get("logging", {}) or {}).get("loglevel", "INFO")

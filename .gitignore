@@ -27,3 +27,8 @@ e2e/e2e-results/
 stage/
 # Shared UCC page helpers, installed by the playwright@v1 action in CI
 e2e/ucc/ucc-helpers.js
+
+# ucc-gen vendors package/lib from requirements.txt at build time; never commit the
+# libraries (a committed copy is laid over the pip-resolved one, mixing versions).
+package/lib/*
+!package/lib/requirements.txt
