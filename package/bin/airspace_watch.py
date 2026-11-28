@@ -219,8 +219,8 @@ def _settings_from_conf_files() -> Dict[str, Dict[str, Any]]:
     """
     splunk_home = os.environ.get("SPLUNK_HOME", "/opt/splunk")
     candidates = [
-        os.path.join(splunk_home, "etc", "apps", APP_NAME, "default", SETTINGS_CONF + ".conf"),
         os.path.join(splunk_home, "etc", "apps", APP_NAME, "local", SETTINGS_CONF + ".conf"),
+        os.path.join(splunk_home, "etc", "apps", APP_NAME, "default", SETTINGS_CONF + ".conf"),
     ]
     settings: Dict[str, Dict[str, Any]] = {}
     for path in candidates:
