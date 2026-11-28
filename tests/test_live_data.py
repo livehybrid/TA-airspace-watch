@@ -120,6 +120,20 @@ def _input_error_logged(splunk):
     return splunk.search(spl, earliest="-15m")
 
 
+def test_settings_read_through_splunkd(splunk, airspace_input):
+    # The collector reads the Configuration page's settings through splunkd with
+    # the input's session key; the conf-file fallback announces itself on stderr.
+    # splunk-sdk 3 dropped Script._input_definition, which the collector once read
+    # the key from, so every run fell back silently (Nov 2026).
+    assert _collect(splunk), "positive control: the input never indexed an event"
+    hits = splunk.search(
+        'search index=_internal source=*splunkd.log* "airspace_watch settings fallback to conf files" '
+        "earliest=-15m",
+        earliest="-15m",
+    )
+    assert not hits, f"settings fell back to the conf files: {[h.get('_raw', '')[:200] for h in hits[:3]]}"
+
+
 def _collect(splunk):
     # `| spath` parses each event's JSON `_raw` directly, so the assertions read
     # the exact payload the modular input emitted regardless of whether the
