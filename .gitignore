@@ -25,3 +25,5 @@ appinspect-report*.json
 e2e/node_modules/
 e2e/e2e-results/
 stage/
+# Shared UCC page helpers, installed by the playwright@v1 action in CI
+e2e/ucc/ucc-helpers.js
