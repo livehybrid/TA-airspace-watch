@@ -340,7 +340,8 @@ class AirspaceWatch(Script):
         # The session key comes from the InputDefinition splunklib hands us. Not
         # self._input_definition: that private attribute is gone in splunk-sdk 3,
         # and without a key the settings silently fell back to the files.
-        session_key = (getattr(inputs, "metadata", None) or {}).get("session_key")
+        session_key = getattr(self, "_input_definition", None)
+        session_key = getattr(session_key, "metadata", {}).get("session_key") if session_key else None
 
         settings = load_settings(session_key)
         log_level = (settings.get("logging", {}) or {}).get("loglevel", "INFO")
