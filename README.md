@@ -15,18 +15,16 @@ the Splunk Dashboard Contest 2026.
 | Attribute | Value |
 |-----------|-------|
 | **Add-on version** | 1.0.0 |
-| **Tested against** | Splunk Enterprise 10.0 (Python 3.9) and 10.6 (Python 3.13), real Splunk in Docker, on every CI run |
-| **Python runtime** | 3.13 on Splunk 10.2 and later, 3.9 on Splunk 10.1 and earlier |
-| **Expected compatible** | Splunk Enterprise and Cloud 9.3+ and 10.x |
+| **Tested against** | Splunk Enterprise 10.4 and the newest 10.6 (Python 3.13), real Splunk in Docker, on every CI run |
+| **Python runtime** | 3.13 |
+| **Supported** | Splunk Enterprise and Cloud 10.4 and later |
 | **Deployment roles** | Standalone, Distributed, Search Head Clustering |
 | **AppInspect** | Passes the `cloud`, `future` and `private_victoria` tag sets |
 
-Splunk 10.2 and later ship Python 3.9 and 3.13 side by side; this add-on sets
-`python.required = 3.13`, so it runs on 3.13 there. Splunk 10.1 and earlier
-ignore `python.required` and run it on 3.9 (`python.version = python3`), so the
-code and vendored libraries stay 3.9-compatible (`requests < 2.33`,
-`splunk-sdk < 3`). CI runs the integration tests on Splunk 10.0 (Python 3.9)
-and 10.6 (Python 3.13) to hold both.
+The add-on sets `python.required = 3.13`, which every supported Splunk honours,
+so it runs on Python 3.13; CI checks that splunkd launched every input on 3.13.
+New releases support Splunk 10.4 and later. For an older Splunk, use the last
+release that supported it (1.0.4 was tested on 10.0 and 10.6).
 
 ## Repository layout
 
